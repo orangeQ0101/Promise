@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>state属性简写版</title>
+</head>
+
+<body>
+  <div class="test"></div>
+  <!-- 2. 引入react库,其中核心库必须在react-dom之前导入-->
+  <!-- 2.1 引入react核心库 -->
+  <script type="text/javascript" src="../js/react.development.js"></script>
+  <!-- 2.2 引入react-dom,用于支持react操作DOM -->
+  <script type="text/javascript" src="../js/react-dom.development.js"></script>
+  <!-- 2.3 引入babel,用于将jsx转为js -->
+  <script type="text/javascript" src="../js/babel.min.js"></script>
+  <script type="text/babel">
+    // 1.定义组件
+    class Weather extends React.Component {
+      // 初始化状态
+      state = { isHot: false, isWindy: true }
+
+      render() {
+        const isHot = this.state.isHot
+        const { isWindy } = this.state
+        return <h1 onClick={this.changeWeather}>今天天气很{isHot ? '炎热' : '凉爽'}</h1>
+      }
+      // ()=>{}和function demo(){}区别
+      // 箭头函数没有this，当使用this时，寻找函数外层的this指向作为函数this指向
+      // 该处函数外部即Weather类内部，故this指向Weather实例对象
+
+      // 自定义方法
+      changeWeather = () => {
+        const isHot = this.state.isHot
+        this.setState({ isHot: !isHot })
+      }
+    }
+    // 2.渲染组件到页面
+    ReactDOM.render(<Weather />, document.querySelector('.test'))
+  </script>
+</body>
+
+</html>

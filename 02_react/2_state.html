@@ -23,21 +23,41 @@
         super(props)
         // 初始化状态
         this.state = { isHot: false, isWindy: true }
+        // 调用bind()拿到this指向实例对象的changeWeather()方法
+        // bind(): 形参为任意对象，类的方法和自定义函数可调用
+        // 作用是生成一个与原函数的函数体内容完全相同的函数，而this指向传入的实参对象
+        this.changeWeather = this.changeWeather.bind(this)
+        /* 该语句的作用时，在Weather原型对象上定义的changeWeather方法基础上，生成一个
+        定义在实例对象上的changeWeather方法且this指向实例对象 */
+        /* 当后续实例对象调用changeWeather方法时，首先会在实例对象上寻找，找到后执行；若未找到，则
+        顺着原型链依次寻找，直至找到位置。若始终未找到，则在控制台作做错处理 */
+        // 显然在此处可以直接在实例对象上找到对应方法
       }
       render() {
         // 读取状态
         const isHot = this.state.isHot
         const { isWindy } = this.state
-        console.log(isHot);
-        console.log(isWindy);
-        console.log(this);
+        // console.log(isHot);
+        // console.log(isWindy);
+        // console.log(this);
         return <h1 onClick={this.changeWeather}>今天天气很{isHot ? '炎热' : '凉爽'}</h1>
       }
       changeWeather() {
         // changeWeather是作为onClick的回调，即将引用赋值给onClick，当触发时直接执行函数(方法)。
         // 所以changeWeather是直接调用，而非通过实例调用
         // this用法见 2_demo.html
-        console.log(this);
+
+        // 通过object内置API——setState更改属性值，此时更新是合并(其余属性值不变)更新，而非替换更新
+        // 获取属性isHot的属性值, 并赋值给方法内置变量isHot
+        const isHot = this.state.isHot
+        // 将属性isHot的属性值更改为内置变量isHot的取反
+        this.setState({ isHot: !isHot })
+
+        // 状态(state)不可以直接更改，即如下操作。可行但错误
+        // this.state.isHot = !this.state.isHot
+        // // 3.反复渲染更改后组件到页面
+        // ReactDOM.render(<Weather />, document.querySelector('.test'))
+        // // console.log(this.state.isHot);
       }
     }
     // 2.渲染组件到页面
