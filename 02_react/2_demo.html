@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>this测试</title>
+</head>
+
+<body>
+  <script type="text/javascript">
+    class Person {
+      constructor(name, age) {
+        this.name = name
+        this.age = age
+      }
+      sleep() {
+        console.log(this);
+      }
+    }
+    const p = new Person('orange', 20)
+    // way1
+    p.sleep()
+    // way2
+    const anotherPath = p.sleep
+    anotherPath()
+    // 现象: way1可以得到实例对象，way2只能得到undefined
+    // 原因: 两种调用方法区别在于way1通过实例调用，way2通过赋值引用的方法直接调用.
+    // 已知类中方法位于原型对象上，供实例对象调用.
+    // 只有通过实例调用时，this才指向实例对象。直接调用，按理来说this应该指向window,
+    // 但是由于类中方法默认开启了局部的严格模式，所以this指向undefined
+  </script>
+</body>
+
+</html>
