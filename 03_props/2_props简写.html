@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>props使用</title>
+</head>
+
+<body>
+  <div class="test"></div>
+  <div class="test1"></div>
+  <div class="test2"></div>
+  <script type="text/javascript" src="../js/react.development.js"></script>
+  <script type="text/javascript" src="../js/react-dom.development.js"></script>
+  <script type="text/javascript" src="../js/babel.min.js"></script>
+  <!-- 用于限制props属性 -->
+  <script type="text/javascript" src="../js/prop-types.js"></script>
+  <script type="text/babel">
+    // 定义组件
+    class Person extends React.Component {
+      // 限制props属性
+      static propTypes = {
+        name: PropTypes.string.isRequired, //name必选，类型为String
+        age: PropTypes.number, //类型为Number
+        gender: PropTypes.string, //类型为String
+        speak: PropTypes.func, //类型为function
+      }
+      // 定义默认属性值
+      static defaultProps = {
+        age: 18,
+        gender: 'man'
+      }
+      render() {
+        // 获取属性值
+        const { name, gender, age } = this.props
+        return (
+          <ul>
+            <li>姓名: {name}</li>
+            <li>性别: {gender}</li>
+            <li>年龄: {age}</li>
+          </ul>
+        )
+      }
+    }
+
+    // 渲染组件
+    const p1 = { name: 'sky', gender: 'man', age: 19 }
+    ReactDOM.render(<Person {...p1} />, document.querySelector('.test'))
+    ReactDOM.render(<Person name='orange' gender='man' age={20} speak={speak} />, document.querySelector('.test1'))
+    ReactDOM.render(<Person name='sea' />, document.querySelector('.test2'))
+
+    function speak() {
+      console.log('i can speak English');
+    }
+  </script>
+</body>
+
+</html>

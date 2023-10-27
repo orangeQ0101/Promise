@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>回调ref调用次数问题</title>
+</head>
+
+<body>
+  <div class="test"></div>
+  <script type="text/javascript" src="../js/react.development.js"></script>
+  <script type="text/javascript" src="../js/react-dom.development.js"></script>
+  <script type="text/javascript" src="../js/babel.min.js"></script>
+  <script type="text/babel">
+    //1. 创建组件
+    class Data extends React.Component {
+      state = { isHot: true }
+      render() {
+        const { isHot } = this.state
+        return (
+          <div>
+            <h2>今天天气很{isHot ? '炎热' : '凉爽'}</h2>
+            {/*当回调函数以内联函数定义时，页面元素发生更新需要重新渲染时会调用render()，此时React行为为删除原ref再定义新ref，删除后React会进行检测，因此第一次会传入null，第二次才传入更新节点*/}
+            {/*<input ref={(c) => { this.left = c; console.log('@', c); }} type="text" placeholder="点击按钮显示信息" />&emsp;*/}
+            {/*当回调以实例方法定义时，React不再执行上述行为，更新时不再调用*/}
+            <input ref={this.saveInput} type="text" placeholder="点击按钮显示信息" />
+            <button onClick={this.showLeft}>点我显示左侧信息</button>&emsp;
+            <button onClick={this.changeWeather}>点我更换天气</button>
+          </div>
+        )
+      }
+
+      showLeft = () => {
+        const { left } = this
+        alert(left.value)
+        left.value = ''
+      }
+
+      changeWeather = () => {
+        const { isHot } = this.state
+        this.setState({ isHot: !isHot })
+      }
+
+      saveInput = (c) => {
+        this.left = c
+        console.log('@', this);
+      }
+    }
+    // 2. 渲染组件
+    ReactDOM.render(<Data />, document.querySelector('.test'))
+  </script>
+</body>
+
+</html>

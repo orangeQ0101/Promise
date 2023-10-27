@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>createRef API</title>
+</head>
+
+<body>
+  <div class="test"></div>
+  <script type="text/javascript" src="../js/react.development.js"></script>
+  <script type="text/javascript" src="../js/react-dom.development.js"></script>
+  <script type="text/javascript" src="../js/babel.min.js"></script>
+  <script type="text/babel">
+    //1. 创建组件
+    class Data extends React.Component {
+      // createRef()专人专用，有一个节点使用就需要创建一个
+      // 节点以键值对形式存储在创建的ref容器中，键为current(固定)，值为对应节点
+      ref1 = React.createRef()
+      ref2 = React.createRef()
+      render() {
+        return (
+          <div>
+            <input ref={this.ref1} type="text" placeholder="点击按钮显示信息" />&emsp;
+            <button onClick={this.showLeft}>点我显示左侧信息</button>&emsp;
+            <input onBlur={this.showRight} ref={this.ref2} type="text" placeholder="失去焦点显示信息" />
+          </div>
+        )
+      }
+
+      showLeft = () => {
+        const { current } = this.ref1
+        alert(current.value)
+        current.value = ''
+        console.log(this);
+      }
+
+      showRight = () => {
+        const right = this.ref2.current
+        alert(right.value)
+        right.value = ''
+        console.log(this);
+      }
+    }
+    // 2. 渲染组件
+    ReactDOM.render(<Data />, document.querySelector('.test'))
+  </script>
+</body>
+
+</html>
