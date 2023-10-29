@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高阶函数与函数柯里化</title>
+</head>
+
+<body>
+  <div id="test"></div>
+  <script src="../js/react.development.js"></script>
+  <script src="../js/react-dom.development.js"></script>
+  <script src="../js/babel.min.js"></script>
+  <script type="text/babel">
+    class Login extends React.Component {
+      submit = (event) => {
+        // 受控组件：先拿后取
+        const { uname, pwd } = this.state
+        event.preventDefault()
+        alert(`用户名为：${uname}，密码为：${pwd}`)
+        console.log(this);
+      }
+
+      state = {
+        uname: '',
+        pwd: ''
+      }
+
+      // 1. 由于传参不能同步，客户端自己调用时传入dataType,触发事件React调用回调时传入event。此处需要使用函数柯里化：多次传参，一次处理
+      // 2. 对象字面量的计算属性名：当对象属性名需要根据自定义变量的值定义时，可以利用计算属性名定义属性，规则如下：
+      // const name = 'orange'
+      // ① const obj = {
+      //  [name]:'hello,world' 
+      // }
+      // ② obj[name]='hello,world'
+      // console.log(obj)
+      // 输出：{ "orange": "hello,world" }
+      saveFormData = (dataType) => {
+        return (event) => {
+          this.setState({ [dataType]: event.target.value })
+        }
+      }
+
+      render() {
+        return (
+          <form onSubmit={this.submit} action="http://www.baidu.com">
+            {/*<input onChange={this.saveUname} type="text" /><br />*/}
+            {/*<input onChange={this.savePwd} type="password" /><br />*/}
+            {/*尝试将方法合二为一，通过传入参数判定更改哪个状态*/}
+            {/*事件处理传入this.func时，事件回调是func函数；传入this,func()时，事件回调是func函数的返回值，此时需要将返回值定义为一个参数*/}
+            <input onChange={this.saveFormData('uname')} type="text" />
+            <input onChange={this.saveFormData('pwd')} type="password" />
+            <button>登录</button>
+          </form>
+        )
+      }
+    }
+    ReactDOM.render(<Login />, document.querySelector('#test'))
+  </script>
+</body>
+
+</html>
