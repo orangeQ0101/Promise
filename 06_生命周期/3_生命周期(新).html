@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生命周期(新)</title>
+</head>
+
+<body>
+  <div id="test"></div>
+  <script src="../js/react.development.js"></script>
+  <script src="../js/react-dom.development.js"></script>
+  <script src="../js/babel.min.js"></script>
+  <script type="text/babel">
+    // 定义组件
+    class Sum extends React.Component {
+
+      // 构造器函数---初始化1
+      constructor(props) {
+        super(props)
+        this.state = { count: 0 }
+        console.log('count---constructor');
+      }
+
+      render() {
+        console.log('count---render');
+        return (
+          <div>
+            <h2>当前求和为：{this.state.count}</h2>
+            <button onClick={this.add}>点我加1</button>&emsp;
+            <button onClick={this.delete}>点我卸载</button>&emsp;
+            <button onClick={this.reset}>强制更(刷)新</button>
+          </div>
+        )
+      }
+
+      // 按钮点击事件回调
+      add = () => {
+        const { count } = this.state
+        this.setState({ count: count + 1 })
+        console.log(this);
+      }
+
+      // 卸载按钮回调
+      delete = () => {
+        ReactDOM.unmountComponentAtNode(document.querySelector('#test'))
+      }
+
+      // 强制刷新按钮回调
+      reset = () => {
+        this.forceUpdate()
+      }
+
+      // 更新前，挂在前---初始化2，更新1
+      // 若state任何时候取值都取决于props，那么可以使用getDerivedStateFromProps
+      static getDerivedStateFromProps(props, state) {
+        console.log('count---getDerivedStateFromProps', props, state);
+        return state
+      }
+
+      // 挂载完成---初始化3
+      componentDidMount() {
+        console.log('count---componentDidMount');
+      }
+
+
+      // this,setState()执行后，是否更新----更新2
+      shouldComponentUpdate() {
+        console.log('count---shouldComponentUpdate');
+        return true
+      }
+
+      // 获取快照---更新3
+      getSnapshotBeforeUpdate(prevProps, prevState) {
+        console.log('count---getSnapshotBeforeUpdate');
+        return 'orangeQ'
+      }
+
+      // 完成更新---更新4
+      componentDidUpdate(prevProps, prevState, snapshotValue) {
+        console.log('count---componentDidUpdate', prevProps, prevState, snapshotValue);
+      }
+    }
+
+    // 渲染组件
+    ReactDOM.render(<Sum count={901} />, document.querySelector('#test'))
+  </script>
+</body>
+
+</html>

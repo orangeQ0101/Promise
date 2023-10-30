@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生命周期(旧)</title>
+</head>
+
+<body>
+  <div id="test"></div>
+  <script src="../js/react.development.js"></script>
+  <script src="../js/react-dom.development.js"></script>
+  <script src="../js/babel.min.js"></script>
+  <script type="text/babel">
+    // 定义组件
+    class Sum extends React.Component {
+
+      // 构造器函数---初始化1
+      constructor(props) {
+        super(props)
+        this.state = { count: 0 }
+        console.log('count---constructor');
+      }
+
+      render() {
+        console.log('count---render');
+        return (
+          <div>
+            <h2>当前求和为：{this.state.count}</h2>
+            <button onClick={this.add}>点我加1</button>&emsp;
+            <button onClick={this.delete}>点我卸载</button>&emsp;
+            <button onClick={this.reset}>强制更(刷)新</button>
+          </div>
+        )
+      }
+
+      // 按钮点击事件回调
+      add = () => {
+        const { count } = this.state
+        this.setState({ count: count + 1 })
+        console.log(this);
+      }
+
+      // 卸载按钮回调
+      delete = () => {
+        ReactDOM.unmountComponentAtNode(document.querySelector('#test'))
+      }
+
+      // 强制刷新按钮回调
+      reset = () => {
+        this.forceUpdate()
+      }
+
+      // 即将挂载---初始化2
+      componentWillMount() {
+        console.log('count---componentWillMount');
+      }
+
+      // 挂载完成---初始化3
+      componentDidMount() {
+        console.log('count---componentDidMount');
+      }
+
+      // 即将卸载---初始化4
+      componentWillUnmount() {
+        console.log('count---componentWillUnmount');
+      }
+
+      // this,setState()执行后，是否更新----更新2
+      shouldComponentUpdate() {
+        console.log('count---shouldComponentUpdate');
+        return true
+      }
+
+      // 更新2返回值为true，将要更新---更新3
+      componentWillUpdate() {
+        console.log('count---componentWillUpdate');
+      }
+
+      // 完成更新---更新4
+      componentDidUpdate() {
+        console.log('count---componentDidUpdate');
+      }
+    }
+
+    // 演示父、子组件
+    class Father extends React.Component {
+      state = { today: '今天' }
+      render() {
+        return (
+          <div>
+            <h2>今天是：{this.state.today}</h2>
+            <button onClick={this.backtrack}>时间回溯</button>
+            <Son today={this.state.today} />
+          </div>
+        )
+      }
+
+      backtrack = () => {
+        this.setState({ today: '昨天' })
+      }
+    }
+
+    class Son extends React.Component {
+      render() {
+        return <h2>我是Son，今天是:{this.props.today}</h2>
+      }
+
+      // 父组件render执行时---更新1
+      // 第一次传参，即初始化时不会执行该函数；第二次及以后，即更新时才会触发该函数
+      componentWillReceiveProps() {
+        console.log('count---componentWillReceiveProps');
+      }
+      // 后续子组件将依次触发更新2、3、4
+      // this,setState()执行后，是否更新----更新2
+      shouldComponentUpdate() {
+        console.log('count---shouldComponentUpdate');
+        return true
+      }
+
+      // 更新2返回值为true，将要更新---更新3
+      componentWillUpdate() {
+        console.log('count---componentWillUpdate');
+      }
+
+      // 完成更新---更新4
+      componentDidUpdate() {
+        console.log('count---componentDidUpdate');
+      }
+    }
+    // 渲染组件
+    ReactDOM.render(<Father />, document.querySelector('#test'))
+  </script>
+</body>
+
+</html>
