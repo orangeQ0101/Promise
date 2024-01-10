@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>异步及多次调用</title>
+</head>
+
+<body>
+  <p2>异步及多次调用</p2>
+  <script>
+    const PENDING = "pending"
+    const FULFILLED = "onFulfilled"
+    const REJECTED = "onReject"
+    class myPromise {
+      state = PENDING
+      result = undefined
+      // 1. 定义实例属性存储待执行函数
+      // #代表内部属性，仅类内部可见，定义该属性为对象数组
+      #handler = []
+      constructor(func) {
+        const resolve = (result) => {
+          this.state = FULFILLED
+          this.result = result
+          // 3. 待异步处理完成后，执行存储的函数
+          this.#handler.forEach(({ onFulfilled }) => { onFulfilled(this.result) })
+        }
+        const reject = (result) => {
+          this.state = REJECTED
+          this.result = result
+          // 3. 待异步处理完成后，执行存储的函数
+          this.#handler.forEach(({ onRejected }) => { onRejected(this.result) })
+        }
+        func(resolve, reject)
+      }
+      then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : (x) => { console.log(x); }
+        onRejected = typeof onRejected === 'function' ? onRejected : (x) => { throw x }
+        if (this.state === FULFILLED) {
+          onFulfilled(this.result)
+        } else if (this.state === REJECTED) {
+          onRejected(this.result)
+        } else {
+          // 2.执行then()时，若state为pending，证明正在异步处理中，将预执行函数暂时存储
+          this.#handler.push({ onFulfilled, onRejected })
+        }
+      }
+    }
+
+    // 测试代码
+    const p = new myPromise((res, rej) => {
+      setTimeout(() => {
+        res('success')
+        // rej('error')
+      }, 2000)
+    })
+
+    p.then(res => { console.log('then1:', res); }, err => { console.log('then1', err); })
+    p.then(res => { console.log('then2:', res); }, err => { console.log('then2', err); })
+  </script>
+</body>
+
+</html>

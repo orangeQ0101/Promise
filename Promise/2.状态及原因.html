@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>状态及原因</title>
+</head>
+
+<body>
+  <script>
+    const PENDING = 'pending'
+    const FULFILLED = 'fulfilled'
+    const REJECTED = 'rejected'
+    class myPromise {
+      // 1. 添加状态及结果
+      state = PENDING
+      result = undefined
+      constructor(func) {
+        // 2. 重定义resolve/reject，且设置为不可逆
+        const resolve = (result) => {
+          if (this.state === PENDING) {
+            this.state = FULFILLED
+            this.result = result
+          }
+        }
+        const reject = (result) => {
+          if (this.state === PENDING) {
+            this.state = REJECTED
+            this.result = result
+          }
+        }
+        func(resolve, reject)
+      }
+    }
+
+    // 测试代码
+    const p = new myPromise((res, rej) => {
+      res('success')
+      rej('error')
+    })
+    console.log(p.state, p.result);
+  </script>
+</body>
+
+</html>

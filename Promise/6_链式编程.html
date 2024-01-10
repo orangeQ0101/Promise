@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>链式编程-处理返回值和异常</title>
+</head>
+
+<body>
+  <p2>链式编程-处理返回值和异常</p2>
+  <script>
+    const PENDING = "pending"
+    const FULFILLED = "onFulfilled"
+    const REJECTED = "onReject"
+    class myPromise {
+      state = PENDING
+      result = undefined
+      #handler = []
+      constructor(func) {
+        const resolve = (result) => {
+          this.state = FULFILLED
+          this.result = result
+          this.#handler.forEach(({ fulfilled }) => { fulfilled() })
+        }
+        const reject = (result) => {
+          this.state = REJECTED
+          this.result = result
+          this.#handler.forEach(({ rejected }) => { rejected() })
+        }
+        func(resolve, reject)
+      }
+      then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : (x) => { console.log(x); }
+        onRejected = typeof onRejected === 'function' ? onRejected : (x) => { throw x }
+        const next = new myPromise((resolve, reject) => {
+          if (this.state === FULFILLED) {
+            // 1. 接收成功调用的返回值并传入新的Promise对象
+            // 哪个函数返回，在哪个函数前面接
+            asynctask(() => {
+              try {
+                const value = onFulfilled(this.result)
+                // console.log(value);
+                resolve(value)
+              } catch (error) {
+                // console.log('捕获异常', error);
+                reject(error)
+              }
+            })
+          } else if (this.state === REJECTED) {
+            asynctask(() => { onRejected(this.result) })
+          } else {
+            this.#handler.push({
+              fulfilled: () => { asynctask(() => { onFulfilled(this.result) }) },
+              rejected: () => { asynctask(() => { onRejected(this.result) }) }
+            })
+          }
+        })
+        return next
+      }
+    }
+
+    function asynctask(callback) {
+      if (typeof queueMicrotask === 'function') {
+        queueMicrotask(callback)
+      } else if (typeof MutationObserver === 'function') {
+        const obs = new MutationObserver(callback)
+        const divNode = document.createElement('div')
+        obs.observe(divNode, { childList: true })
+        divNode.innerText = 'orangeq'
+      } else {
+        setTimeout(callback, 0)
+      }
+    }
+
+    // 测试代码
+    const p = new myPromise((res, rej) => {
+      res(1)
+    })
+    p.then(res => {
+      console.log('then1:', res);
+      // throw 'error1'
+      return 2
+    }).then(res => {
+      console.log('then2', res);
+    }, err => {
+      console.log('then2', err);
+    })
+  </script>
+</body>
+
+</html>

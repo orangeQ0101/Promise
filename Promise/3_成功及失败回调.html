@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>成功及失败回调</title>
+</head>
+
+<body>
+  <script>
+    const PENDING = 'pending'
+    const FULFILLED = 'fulfilled'
+    const REJECTED = 'rejected'
+    class myPromise {
+      state = PENDING
+      result = undefined
+      constructor(func) {
+        const resolve = (result) => {
+          if (this.state === PENDING) {
+            this.state = FULFILLED
+            this.result = result
+          }
+        }
+        const reject = (result) => {
+          if (this.state === PENDING) {
+            this.state = REJECTED
+            this.result = result
+          }
+        }
+        func(resolve, reject)
+      }
+      then(onFulfilled, onRejected) {
+        // onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : (x) => {  console.log(x); }
+        if (typeof onFulfilled !== 'function') {
+          this.result = onFulfilled
+          onFulfilled = (x) => { console.log(x); }
+        }
+        // onRejected = typeof onRejected === 'function' ? onRejected : (x) => { throw x }
+        if (typeof onRejected !== 'function') {
+          this.result = onRejected
+          onRejected = (x) => { throw x }
+        }
+
+        if (this.state === FULFILLED) {
+          onFulfilled(this.result)
+        } else if (this.state === REJECTED) {
+          onRejected(this.result)
+        }
+      }
+    }
+
+
+    // 测试代码
+    const p = new myPromise((res, rej) => {
+      // res('success')
+      rej('error')
+    })
+
+    // p.then(res => { console.log('成功回调', res); }, err => { console.log('失败回调', err); })
+    p.then(100, 1000)
+  </script>
+</body>
+
+</html>

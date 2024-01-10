@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>异步任务</title>
+</head>
+
+<body>
+  <p2>异步任务</p2>
+  <script>
+    const PENDING = "pending"
+    const FULFILLED = "onFulfilled"
+    const REJECTED = "onReject"
+    class myPromise {
+      state = PENDING
+      result = undefined
+      #handler = []
+      constructor(func) {
+        const resolve = (result) => {
+          this.state = FULFILLED
+          this.result = result
+          this.#handler.forEach(({ fulfilled }) => { fulfilled() })
+        }
+        const reject = (result) => {
+          this.state = REJECTED
+          this.result = result
+          this.#handler.forEach(({ rejected }) => { reject() })
+        }
+        func(resolve, reject)
+      }
+      // 2. 函数在then中被调用，因此应该在被调用时进行异步操作
+      then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : (x) => { console.log(x); }
+        onRejected = typeof onRejected === 'function' ? onRejected : (x) => { throw x }
+        if (this.state === FULFILLED) {
+          asynctask(() => { onFulfilled(this.result) })
+        } else if (this.state === REJECTED) {
+          asynctask(() => { onRejected(this.result) })
+        } else {
+          this.#handler.push({
+            // :作用是定义参数名为左侧，右侧为其对应属性值
+            // 在对应的回调函数中异步执行函数
+            fulfilled: () => { asynctask(() => { onFulfilled(this.result) }) },
+            rejected: () => { asynctask(() => { onRejected(this.result) }) }
+          })
+        }
+      }
+    }
+
+    // 1. 封装异步执行函数，按照queueMicrotask, MutationObserver,setTimeout的顺序
+    function asynctask(callback) {
+      if (typeof queueMicrotask === 'function') {
+        queueMicrotask(callback)
+      } else if (typeof MutationObserver === 'function') {
+        const obs = new MutationObserver(callback)
+        const divNode = document.createElement('div')
+        obs.observe(divNode, { childList: true })
+        divNode.innerText = 'orangeq'
+      } else {
+        setTimeout(callback, 0)
+      }
+    }
+
+    // 测试代码
+    console.log('1');
+    const p = new myPromise((res, rej) => {
+      // res('success')
+      rej('error')
+    })
+    p.then(res => { console.log('then1:', res); }, err => { console.log('then1', err); })
+    console.log('2');
+
+    // -----------------核心API-----------------------
+    // 1. queueMicrotask，传入回调函数，回调函数异步执行
+    // console.log('1');
+    // queueMicrotask(() => {
+    //   console.log('queueMicrotask');
+    // })
+    // console.log('2');
+
+    // 2. MutationObserver，传入回调函数，当对应dom节点发生改变时异步执行回调函数
+    // console.log('1');
+    // const obs = new MutationObserver(() => {
+    //   console.log('MutationObserver');
+    // })
+    // const divNode = document.createElement('div')
+    //   observe()第一个参数是监听目标节点，第二个参数是监督范围，如下行表示目标节点的子节点
+    // obs.observe(divNode, { childList: true })
+    // divNode.innerHTML = 'orangeq'
+    // console.log('1');
+  </script>
+</body>
+
+</html>
